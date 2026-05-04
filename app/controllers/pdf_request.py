@@ -11,16 +11,34 @@ from pydantic import BaseModel, Field, field_validator
 
 
 class PdfRequest(BaseModel):
-    """Request body for PDF processing."""
+    """
+    Request body for PDF processing endpoint.
 
-    file_name: str = Field(min_length=1)
-    content: str = Field(min_length=1)
+    Validates incoming PDF requests before processing to ensure
+    both filename and content are present and content is valid Base64.
+    """
+
+    file_name: str = Field(min_length=1, description="Name of the PDF file")
+    content: str = Field(min_length=1, description="PDF content encoded in Base64")
 
     @field_validator("content")
     @classmethod
     def validate_base64_content(cls, value: str) -> str:
-        """Ensure the content is strict Base64 before the request is accepted."""
+        """
+        Validate that content is strict Base64.
 
+        Runs before model instantiation to reject invalid Base64 early,
+        preventing wasted processing on invalid requests.
+
+        Args:
+            value: The content field value to validate
+
+        Returns:
+            The validated content string
+
+        Raises:
+            ValueError: If Base64 validation fails
+        """
         try:
             base64.b64decode(value, validate=True)
         except binascii.Error as exc:
