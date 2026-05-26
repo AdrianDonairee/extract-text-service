@@ -10,6 +10,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 # Copiar pyproject.toml
 COPY pyproject.toml .
+# Copiar el código de la aplicación antes de instalar para aprovechar cache de capas
+COPY . .
 
 # Instalar dependencias en un directorio virtual
 RUN python -m venv /opt/venv && \
@@ -44,5 +46,5 @@ EXPOSE 5000
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD python -c "import requests; requests.get('http://localhost:5000/docs')" || exit 1
 
-# Comando por defecto
-CMD ["uvicorn", "src.app:app", "--host", "0.0.0.0", "--port", "5000"]
+# Comando por defecto 
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "5000"]

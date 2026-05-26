@@ -1,0 +1,37 @@
+services:
+  extract-text-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: extract-text-service:latest
+    container_name: extract-text-service
+    restart: unless-stopped
+    environment:
+      PYTHONUNBUFFERED: "1"
+      PYTHONDONTWRITEBYTECODE: "1"
+      APP_PORT: "5000"
+      TRAEFIK_HOST: "${TRAEFIK_HOST:-extract-text-service.localhost}"
+      NOTEBOOKUM_URL: "${NOTEBOOKUM_URL:-http://notebookum:5000}"
+      USER_SERVICE_URL: "${USER_SERVICE_URL:-http://user-service:5004}"
+      SUMMARY_SERVICE_URL: "${SUMMARY_SERVICE_URL:-http://app:8002}"
+      PERSISTENCE_SERVICE_URL: "${PERSISTENCE_SERVICE_URL:-http://persistence-db:5000}"
+    command:
+      - uvicorn
+      - main:app
+      - --host
+      - 0.0.0.0
+      - --port
+      - "${APP_PORT:-5000}"
+    networks:
+      - traefik
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.extract-text-service.rule=Host(`${TRAEFIK_HOST:-extract-text-service.localhost}`)
+      - traefik.http.routers.extract-text-service.entrypoints=web
+      - traefik.http.routers.extract-text-service.service=extract-text-service
+      - traefik.http.services.extract-text-service.loadbalancer.server.port=5000
+
+networks:
+  traefik:
+    external: true
+    name: ${TRAEFIK_NETWORK:-traefik}
