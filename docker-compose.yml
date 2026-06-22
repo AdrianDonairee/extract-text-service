@@ -10,11 +10,11 @@ services:
       PYTHONUNBUFFERED: "1"
       PYTHONDONTWRITEBYTECODE: "1"
       APP_PORT: "5000"
-      TRAEFIK_HOST: "${TRAEFIK_HOST:-extract-text-service.localhost}"
+      TRAEFIK_HOST: "${TRAEFIK_HOST:-extract-text-service.universidad.localhost}"
       NOTEBOOKUM_URL: "${NOTEBOOKUM_URL:-http://notebookum:5000}"
       USER_SERVICE_URL: "${USER_SERVICE_URL:-http://user-service:5004}"
       SUMMARY_SERVICE_URL: "${SUMMARY_SERVICE_URL:-http://app:8002}"
-      PERSISTENCE_SERVICE_URL: "${PERSISTENCE_SERVICE_URL:-http://persistence-db:5000}"
+      PERSISTENCE_SERVICE_URL: "${PERSISTENCE_SERVICE_URL:-http://persistence-db:5003}"
     command:
       - uvicorn
       - main:app
@@ -27,11 +27,12 @@ services:
     labels:
       - traefik.enable=true
       - traefik.http.routers.extract-text-service.rule=Host(`${TRAEFIK_HOST:-extract-text-service.localhost}`)
-      - traefik.http.routers.extract-text-service.entrypoints=web
+      - traefik.http.routers.extract-text-service.entrypoints=https
+      - traefik.http.routers.extract-text-service.tls=true
       - traefik.http.routers.extract-text-service.service=extract-text-service
       - traefik.http.services.extract-text-service.loadbalancer.server.port=5000
+      - traefik.docker.network=redum
 
 networks:
-  traefik:
+  redum:
     external: true
-    name: ${TRAEFIK_NETWORK:-traefik}

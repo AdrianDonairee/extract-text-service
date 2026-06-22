@@ -1,4 +1,7 @@
+from dataclasses import dataclass
+
+
 @dataclass
-class Document: 
+class Document:
     file_name: str
-    content: str 
+    content: str
