@@ -23,7 +23,7 @@ services:
       - --port
       - "${APP_PORT:-5000}"
     networks:
-      - traefik
+      - redum
     labels:
       - traefik.enable=true
       - traefik.http.routers.extract-text-service.rule=Host(`${TRAEFIK_HOST:-extract-text-service.localhost}`)
